@@ -1,0 +1,20 @@
+# 密钥 / 凭证（绝不入库）
+CLOUDFLARE_TOKEN.txt
+*.env
+.env
+.env.*
+
+# wrangler 本地缓存
+.wrangler/
+.wrangler
+
+# 生成物 / 预览
+docs/preview_*.json
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc

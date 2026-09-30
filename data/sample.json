@@ -1,0 +1,110 @@
+[
+  {
+    "type": "markets",
+    "ticker": "600519",
+    "price": "1450.00",
+    "change_pct": "-1.2%",
+    "notice": "2026 半年报：营收同比 +8.3%，净利润同比 +5.1%，拟每 10 股派现 46.3 元",
+    "date": "2026-08-20",
+    "source": "练习数据",
+    "calendar_events": [
+      {
+        "title": "贵州茅台 2026 年三季报发布",
+        "date": "2026-10-18",
+        "kind": "earnings",
+        "status": "pending"
+      },
+      {
+        "title": "贵州茅台 2026 年度股东大会",
+        "date": "2027-04-20",
+        "kind": "meeting",
+        "status": "pending"
+      }
+    ],
+    "related_news": [
+      "白酒行业消费复苏不及预期，高端酒批价持续承压"
+    ],
+    "topics": ["白酒", "消费"]
+  },
+  {
+    "type": "markets",
+    "ticker": "300750",
+    "price": "182.50",
+    "change_pct": "+3.6%",
+    "notice": "公告：与某车企签订动力电池框架协议，金额约 12 亿元，分 3 年交付",
+    "date": "2026-09-15",
+    "source": "练习数据",
+    "calendar_events": [
+      {
+        "title": "宁德时代 2026 年三季报发布",
+        "date": "2026-10-20",
+        "kind": "earnings",
+        "status": "pending"
+      }
+    ],
+    "related_news": [
+      "动力电池行业产能利用率回升，碳酸锂价格企稳",
+      "某车企新车型续航突破 1000 公里，搭载固态电池"
+    ],
+    "topics": ["动力电池", "新能源汽车"]
+  },
+  {
+    "type": "markets",
+    "ticker": "601016",
+    "price": "18.32",
+    "change_pct": "+0.8%",
+    "notice": "2026 中报：风电玻璃出货量同比 +22%，海上风电占比提升至 35%",
+    "date": "2026-08-15",
+    "source": "练习数据",
+    "calendar_events": [
+      {
+        "title": "福莱特 2026 年三季报发布",
+        "date": "2026-10-22",
+        "kind": "earnings",
+        "status": "confirmed"
+      }
+    ],
+    "related_news": [
+      "海上风电招标量超预期，产业链景气度持续"
+    ],
+    "topics": ["风电", "新能源"]
+  },
+  {
+    "type": "calendar",
+    "title": "宁德时代 2026 年三季报发布",
+    "date": "2026-10-20",
+    "kind": "earnings",
+    "status": "pending",
+    "related_ticker": "300750",
+    "source": "练习数据"
+  },
+  {
+    "type": "calendar",
+    "title": "贵州茅台 2026 年度股东大会",
+    "date": "2027-04-20",
+    "kind": "meeting",
+    "status": "pending",
+    "related_ticker": "600519",
+    "source": "练习数据"
+  },
+  {
+    "type": "news",
+    "headline": "动力电池行业产能利用率回升，碳酸锂价格企稳",
+    "published_at": "2026-09-20T08:30:00+08:00",
+    "source": "行业观察（练习数据）",
+    "link": "https://example.com/news/battery-capacity-2026",
+    "topics": ["动力电池", "碳酸锂", "新能源汽车"],
+    "related_ticker": "300750",
+    "status": "unread"
+  },
+  {
+    "type": "news",
+    "headline": "海上风电招标量超预期，产业链景气度持续",
+    "published_at": "2026-09-18T10:00:00+08:00",
+    "source": "新能源周报（练习数据）",
+    "link": "https://example.com/news/offshore-wind-2026",
+    "topics": ["风电", "新能源"],
+    "related_ticker": "601016",
+    "status": "unread"
+  }
+]

@@ -1,0 +1,271 @@
+/* ============================================================
+   要闻简报 Newsflow · 新闻驱动三场景联动
+   设计方向：杂志编辑风暗色（editorial dark），新闻当主角
+   色彩克制：主色=新闻紫 + 辅色=财经绿 + 强调色=琥珀（待确认）
+   动效克制：只动首屏要闻进场 + 主题高亮 + 状态翻转；transform/opacity only
+   模糊词翻译：高级=深灰#0f1119+大留白48px+3色以内；呼吸感=区块80px+卡片padding 28px
+   ============================================================ */
+:root {
+  --bg-0: #0f1119;
+  --bg-1: #151822;
+  --bg-2: #1c202d;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --text: #eceef4;
+  --muted: #8b91a3;
+  --faint: #5a6072;
+
+  /* 克制配色：1 主 + 1 辅 + 1 强调 */
+  --news: #a78bfa;            /* 主色 新闻紫 */
+  --news-dim: rgba(167, 139, 250, 0.14);
+  --mk: #34d399;             /* 辅色 财经绿 */
+  --mk-dim: rgba(52, 211, 153, 0.12);
+  --warn: #f5a524;          /* 强调色 琥珀（待确认/失败） */
+  --ok: #34d399;
+  --fail: #f87171;
+
+  /* 边缘色散（红右 / 青左，手册 §三·C 甜点值）*/
+  --chroma-r: 2px 0 0 rgba(255, 71, 87, 0.4);
+  --chroma-b: -2px 0 0 rgba(0, 217, 255, 0.4);
+
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font-body: "Noto Sans SC", system-ui, sans-serif;
+  --font-display: "Noto Serif SC", "Noto Sans SC", serif;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  /* 高级感靠"安静"：单一柔和光晕（静态）+ 深灰底，禁纯黑 */
+  background:
+    radial-gradient(820px 420px at 50% -4%, var(--news-dim), transparent 55%),
+    var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 背景层：动态光全部移除（粒子 + 颗粒 = 闹），只留上面的静态光晕 */
+#particles, .grain { display: none; }
+
+/* ── 首屏：杂志编辑风标题（克制，只进场一次）── */
+.hero { position: relative; z-index: 2; padding: 80px 24px 48px; text-align: center; }
+.hero-inner { max-width: 760px; margin: 0 auto; }
+.hero-tag {
+  display: inline-block; font-size: 11px; letter-spacing: 3px; color: var(--muted);
+  border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 16px; margin-bottom: 26px;
+  animation: fade-up 0.6s ease both;
+}
+.hero-title {
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(36px, 6vw, 64px); line-height: 1.18; letter-spacing: 0.01em;
+  animation: fade-up 0.6s 0.08s ease both;
+}
+.hero-title em { font-style: normal; color: var(--news); }
+.hero-sub { margin-top: 18px; color: var(--muted); font-size: 15px; font-weight: 300; animation: fade-up 0.6s 0.16s ease both; }
+
+/* ── 舞台 ── */
+.stage { position: relative; z-index: 2; max-width: 1040px; margin: 0 auto; padding: 0 24px 40px; }
+
+/* 首屏要闻区块 */
+.brief { margin-bottom: 56px; }
+.brief-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding-bottom: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--line);
+}
+.brief-label {
+  font-size: 11px; letter-spacing: 3px; color: var(--news); text-transform: uppercase;
+}
+.tabs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tab {
+  font-family: var(--font-body); font-size: 13px; color: var(--muted);
+  background: transparent; border: 1px solid transparent; border-radius: 999px;
+  padding: 6px 16px; cursor: pointer; transition: all 0.2s var(--spring);
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); border-color: var(--line-strong); background: var(--bg-2); }
+.tab[data-type="news"].active { color: var(--news); }
+.tab[data-type="markets"].active { color: var(--mk); }
+.tab[data-type="calendar"].active { color: var(--cal); }
+
+/* 要闻大头条区：主新闻卡占整行，视觉当主角 */
+.brief-cards { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+/* 关联证据区：财经 + 日历双列 */
+.linked { margin-bottom: 40px; }
+.linked-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--line);
+}
+.linked-label { font-size: 11px; letter-spacing: 3px; color: var(--mk); text-transform: uppercase; }
+.linked-note { font-size: 12px; color: var(--faint); }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+
+@media (max-width: 720px) {
+  .cards { grid-template-columns: 1fr; }
+  .hero { padding: 56px 20px 36px; }
+}
+
+/* ── 卡片通用：安静（高级=克制），无悬浮弹跳，只 hover 提亮描边 ── */
+.card {
+  position: relative;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  transition: border-color 0.25s ease;
+}
+.card:hover { border-color: var(--line-strong); }
+
+/* 新闻大头条：唯一保留边缘色散的"主角"（点睛，不闹）*/
+.card.news {
+  grid-column: 1 / -1;
+  padding: 28px 30px;
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  box-shadow: var(--chroma-r), var(--chroma-b);
+}
+.card.news::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, transparent, var(--news), transparent);
+}
+.card.news .news-headline {
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(24px, 3.4vw, 34px); line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+.card.news .news-lede { margin-top: 12px; color: var(--muted); font-size: 15px; font-weight: 300; line-height: 1.7; }
+.card.news .news-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: var(--faint); }
+.card.news .news-meta .src { color: var(--news); }
+.news-link {
+  display: inline-block; margin-top: 10px; font-size: 12px; color: var(--news);
+  text-decoration: none; border-bottom: 1px dashed transparent; transition: border-color 0.2s;
+}
+.news-link:hover { border-bottom-color: var(--news); }
+.news-read {
+  margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.news-read .state {
+  font-size: 12px; padding: 4px 12px; border-radius: 999px;
+  border: 1px solid var(--line-strong); color: var(--muted);
+}
+.news-read .state.read { color: var(--ok); border-color: rgba(52,211,153,0.4); }
+
+/* 财经卡：辅色绿，顶边细光条（静态，不发光）*/
+.card.markets::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, transparent, var(--mk), transparent);
+}
+.card.markets.highlight { border-color: var(--mk); box-shadow: 0 0 0 2px var(--mk-dim); }
+
+/* 日历卡：琥珀强调，顶边细光条 */
+.card.calendar::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, transparent, var(--warn), transparent);
+}
+.card.calendar.highlight { border-color: var(--warn); box-shadow: 0 0 0 2px rgba(245,165,36,0.12); }
+
+/* 卡片头 */
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.ticker { font-family: var(--font-display); font-weight: 700; font-size: 18px; display: inline-flex; align-items: center; gap: 10px; }
+.cal-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; display: inline-flex; align-items: center; gap: 10px; }
+.price { font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.up { color: var(--mk); }
+.down { color: var(--fail); }
+.cal-date-large { font-size: 18px; font-weight: 700; color: var(--warn); font-variant-numeric: tabular-nums; }
+
+/* badge */
+.badge {
+  display: inline-block; font-size: 10px; letter-spacing: 1.2px;
+  padding: 3px 10px; border-radius: 4px;
+  background: var(--bg-2); color: var(--muted); border: 1px solid var(--line);
+}
+.badge.type-news { color: var(--news); background: var(--news-dim); border-color: transparent; }
+.badge.type-markets { color: var(--mk); background: var(--mk-dim); border-color: transparent; }
+.badge.type-calendar { color: var(--warn); background: rgba(245,165,36,0.1); border-color: transparent; }
+.badge.kind { color: var(--warn); background: rgba(245,165,36,0.1); border-color: transparent; }
+.badge.topic { cursor: pointer; color: var(--news); background: var(--news-dim); border-color: transparent; transition: all 0.2s var(--spring); }
+.badge.topic:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--news-dim); }
+.badge.ticker-tag { cursor: pointer; color: var(--mk); background: var(--mk-dim); border-color: transparent; font-variant-numeric: tabular-nums; }
+.badge.ticker-tag:hover { transform: translateY(-1px); }
+.badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+/* 区块 */
+.section { margin-top: 14px; }
+.section .label { font-size: 11px; letter-spacing: 2px; color: var(--faint); margin-bottom: 6px; text-transform: uppercase; }
+.section ul { list-style: none; }
+.section li { font-size: 14px; padding: 3px 0; }
+.section li.fact { color: var(--text); }
+.section li.source { color: var(--news); font-size: 13px; }
+.section li.analysis { color: var(--warn); font-size: 13px; }
+.section li.muted { color: var(--faint); font-size: 13px; }
+.sub-section { border-top: 1px dashed var(--line); padding-top: 12px; margin-top: 14px; }
+
+/* 相关日程行（财经卡内嵌）*/
+.cal-event {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px;
+  cursor: pointer; transition: background 0.2s ease;
+}
+.cal-event:hover { background: rgba(255,255,255,0.03); }
+.cal-icon { width: 18px; font-size: 13px; flex-shrink: 0; }
+.cal-icon.pending { color: var(--warn); }
+.cal-icon.confirmed { color: var(--ok); }
+.cal-event .cal-date { margin-left: auto; font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.cal-status { font-size: 12px; }
+.cal-status.pending { color: var(--warn); }
+.cal-status.confirmed { color: var(--ok); }
+.news-item { color: var(--text); font-size: 13px; padding: 3px 0; position: relative; padding-left: 14px; }
+.news-item::before { content: "▸"; position: absolute; left: 0; color: var(--news); }
+
+/* 日历卡状态区 */
+.status-area { margin-top: 14px; }
+.status { font-size: 14px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); }
+.status.pending { color: var(--warn); border-color: rgba(245,165,36,0.3); background: rgba(245,165,36,0.06); }
+.status.confirmed { color: var(--ok); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.06); }
+.status.expired { color: var(--fail); border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.06); }
+.btn-group { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.btn {
+  font-family: var(--font-body); font-size: 13px; padding: 7px 16px; border-radius: 8px;
+  border: 1px solid var(--line-strong); background: var(--bg-2); color: var(--text); cursor: pointer;
+  transition: all 0.22s var(--spring);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0) scale(0.97); }
+.btn.confirm { border-color: rgba(52,211,153,0.4); color: var(--ok); }
+.btn.confirm:hover { background: var(--mk-dim); }
+.btn.reject { border-color: rgba(248,113,113,0.3); color: var(--fail); }
+.btn.reject:hover { background: rgba(248,113,113,0.08); }
+.related-ticker { margin-top: 12px; font-size: 12px; color: var(--faint); }
+.related-ticker b { color: var(--mk); font-weight: 500; }
+
+/* CTA */
+.cta {
+  margin-top: 16px; padding: 12px 16px; border: 1px dashed var(--line-strong); border-radius: 10px;
+  color: var(--muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  transition: all 0.28s var(--spring);
+}
+.cta::before { content: "✦"; color: var(--mk); font-size: 12px; }
+.cta:hover { border-color: var(--mk); color: var(--text); background: var(--mk-dim); transform: translateY(-2px); }
+.cta.subscribed { border-style: solid; border-color: rgba(52,211,153,0.5); color: var(--ok); background: rgba(52,211,153,0.08); }
+
+/* 页脚 */
+.foot {
+  position: relative; z-index: 2; max-width: 1040px; margin: 0 auto; padding: 24px;
+  display: flex; gap: 10px; font-size: 11px; color: var(--faint); letter-spacing: 1px; border-top: 1px solid var(--line);
+}
+.foot-dot { color: var(--faint); }
+
+/* 动画（克制：只 hero 进场 + 高亮/翻转）*/
+@keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.card.news { animation: fade-up 0.6s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  #particles { display: none; }
+}

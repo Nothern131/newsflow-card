@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>要闻简报 Newsflow · 新闻驱动 财经/日程 联动</title>
+<meta name="description" content="GOSIM Agentic App · 新闻简报驱动三场景联动：一条要闻牵出关联股票与日程，Agent 读懂、生成、留人确认。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">GOSIM AGENTIC APP · 三场景联动 · 新闻驱动</div>
+    <h1 class="hero-title">一条要闻，牵出 <em>股票</em> 与 <em>日程</em>。</h1>
+    <p class="hero-sub">Agent 读懂新闻 → 关联财经卡与日历卡 → 关键动作留给你确认 → 失败可重试。</p>
+  </div>
+</header>
+
+<main class="stage">
+  <section class="brief" aria-label="今日要闻">
+    <div class="brief-head">
+      <span class="brief-label">今日要闻</span>
+      <nav class="tabs" role="tablist" aria-label="场景分组">
+        <button class="tab active" data-type="all" role="tab" aria-selected="true">全部</button>
+        <button class="tab" data-type="news" role="tab" aria-selected="false">新闻</button>
+        <button class="tab" data-type="markets" role="tab" aria-selected="false">财经</button>
+        <button class="tab" data-type="calendar" role="tab" aria-selected="false">日程</button>
+      </nav>
+    </div>
+    <div id="brief-cards" class="brief-cards"></div>
+  </section>
+
+  <section class="linked" aria-label="关联证据与日程">
+    <div class="linked-head">
+      <span class="linked-label">关联证据 · 财经 / 日程</span>
+      <span class="linked-note">点要闻里的主题或股票号，牵出对应关联卡</span>
+    </div>
+    <div id="cards" class="cards"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Apache-2.0 · 开源仓库待提交</span>
+  <span class="foot-dot">·</span>
+  <span>数据为练习样例，不构成投资建议</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
