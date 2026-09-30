@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsflow · 新闻驱动三场景联动 · 路演</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;590;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --acid-lime:#e4f222; --pulse-green:#27a644; --coral-red:#eb5757;
+  --signal-teal:#02b8cc; --iris-violet:#6366f1;
+  --void:#08090a; --carbon:#0f1011; --obsidian:#161718; --graphite:#23252a;
+  --smoke:#383b3f; --ash:#62666d; --fog:#8a8f98; --mist:#d0d6e0; --bone:#e5e5e6; --paper:#ffffff;
+  --line:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.16);
+  --radius-card:12px; --radius-btn:6px; --radius-pill:9999px;
+  --font-display:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --pad-x:72px; --pad-y:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;background:#050607;font-family:var(--font-body);overflow:hidden}
+body{color:var(--mist)}
+
+/* 画布：1280×720 固定，居中 + scale */
+#deck{position:fixed;top:50%;left:50%;width:1280px;height:720px;background:var(--void);
+  transform:translate(-50%,-50%);overflow:hidden;border-radius:0;
+  box-shadow:0 10px 60px rgba(0,0,0,.6),0 2px 8px rgba(0,0,0,.4)}
+.slide{position:absolute;inset:0;display:grid;padding:var(--pad-y) var(--pad-x);
+  opacity:0;visibility:hidden;transition:opacity .5s cubic-bezier(.2,.7,.2,1),visibility .5s}
+.slide.active{opacity:1;visibility:visible}
+
+/* 字号基准（px，不用 vw/vh） */
+.h-display{font-size:72px;line-height:.96;font-weight:590;letter-spacing:-.022em;color:var(--paper)}
+.h-1{font-size:48px;line-height:1.04;font-weight:590;letter-spacing:-.022em;color:var(--paper)}
+.h-2{font-size:32px;line-height:1.15;font-weight:560;letter-spacing:-.015em;color:var(--paper)}
+.h-3{font-size:22px;line-height:1.25;font-weight:560;color:var(--paper)}
+.lead{font-size:18px;line-height:1.6;font-weight:400;color:var(--fog);max-width:62ch}
+.body{font-size:16px;line-height:1.5;color:var(--mist)}
+.kicker{font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--acid-lime)}
+.mono{font-family:var(--font-mono);font-size:13px;font-weight:450;color:var(--fog)}
+.stagger>*{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s cubic-bezier(.34,1.4,.6,1)}
+.slide.active .stagger>*{opacity:1;transform:translateY(0)}
+.slide.active .stagger>*:nth-child(1){transition-delay:.05s}
+.slide.active .stagger>*:nth-child(2){transition-delay:.13s}
+.slide.active .stagger>*:nth-child(3){transition-delay:.21s}
+.slide.active .stagger>*:nth-child(4){transition-delay:.29s}
+.slide.active .stagger>*:nth-child(5){transition-delay:.37s}
+.slide.active .stagger>*:nth-child(6){transition-delay:.45s}
+
+/* Chrome（画布内 absolute，绝不 fixed）*/
+.chrome-top{position:absolute;top:0;left:0;right:0;height:40px;padding:0 var(--pad-x);
+  display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--fog);z-index:5}
+.chrome-top .brand{letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--bone)}
+.chrome-top .brand b{color:var(--acid-lime);font-weight:600}
+.chrome-top .yr{font-family:var(--font-mono);color:var(--ash)}
+.chrome-bottom{position:absolute;bottom:0;left:0;right:0;height:40px;padding:0 var(--pad-x);
+  display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ash);z-index:5}
+.chrome-bottom .series{letter-spacing:.04em}
+.chrome-bottom .pageno{font-family:var(--font-mono)}
+.chrome-bottom .pageno b{color:var(--bone);font-weight:600}
+/* 关闭页自带 chrome，抑制 deck 全局 chrome 避免双行 */
+#deck:has(.s-close.active) .chrome-top,#deck:has(.s-close.active) .chrome-bottom{opacity:0;visibility:hidden}
+
+/* nav dots */
+.nav-dots{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}
+.nav-dots button{width:6px;height:6px;border-radius:50%;background:var(--smoke);border:none;cursor:pointer;padding:0;transition:all .3s}
+.nav-dots button.on{background:var(--acid-lime);width:18px;border-radius:3px}
+
+/* ═══════ 封面 T01-B 分屏 ═══════ */
+.s-cover-split{grid-template-columns:1fr 1fr;padding:0}
+.cover-split-text{padding:64px 52px;display:flex;flex-direction:column;justify-content:center;gap:0}
+.cover-split-text .kicker{font-size:13px}
+.cover-split-text .h-display{font-size:64px;margin-top:20px}
+.cover-split-text .lead{margin-top:24px;max-width:38ch}
+.cover-split-tags{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
+.cover-split-tags span{font-size:11px;letter-spacing:.03em;padding:6px 14px;border:1px solid var(--line-strong);
+  border-radius:var(--radius-pill);color:var(--fog)}
+.cover-split-tags span.lime{border-color:rgba(228,242,34,.4);color:var(--acid-lime)}
+.cover-split-img{background:var(--carbon);display:flex;align-items:center;justify-content:center;padding:40px;overflow:hidden}
+.cover-split-img .shot{width:100%;height:100%;border:0.5px solid var(--line);border-radius:var(--radius-card);overflow:hidden}
+.cover-split-img img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* 卡片示意（SVG 内联，替代截图，稳定可控） */
+.card-schem{width:100%;height:100%;display:block;background:linear-gradient(160deg,#0f1011,#08090a)}
+
+/* ═══════ T06 Refine List ═══════ */
+.s-refine{grid-template-columns:34% 1fr;gap:72px;align-items:center}
+.s-refine .left .kicker{font-size:13px}
+.s-refine .left h1{font-size:42px;margin-top:14px}
+.s-refine .left .lead{margin-top:20px}
+.refine-list{display:flex;flex-direction:column;align-content:center;max-height:582px;overflow:hidden}
+.refine-item{display:grid;grid-template-columns:90px 1fr;gap:24px;padding:16px 0;border-bottom:1px solid var(--line);align-items:start}
+.refine-item .idx{font-family:var(--font-mono);font-size:13px;color:var(--acid-lime);padding-top:4px}
+.refine-item .h{font-size:21px;font-weight:600;color:var(--paper)}
+.refine-item .d{font-size:13.5px;line-height:1.5;color:var(--fog);margin-top:6px;max-width:66ch}
+
+/* ═══════ T25 Free Triple（意图链） ═══════ */
+.s-free-triple{grid-template-rows:auto auto;gap:24px;height:100%;align-content:center}
+.free-head{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:32px}
+.free-head h1{font-size:42px;line-height:1.1;margin-top:12px}
+.free-head .lead{max-width:48ch;font-size:15px;align-self:end}
+.free-cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;align-items:stretch;overflow:hidden}
+.flow-col{display:flex;flex-direction:column;gap:14px;min-height:0;background:var(--carbon);border:0.5px solid var(--line);border-radius:var(--radius-card);padding:24px;flex:1}
+.flow-col .step{font-family:var(--font-mono);font-size:11px;color:var(--acid-lime);letter-spacing:.05em}
+.flow-col .ct{font-size:24px;font-weight:590;letter-spacing:-.02em;color:var(--paper)}
+.flow-col .cd{font-size:13px;line-height:1.6;color:var(--fog);margin-top:auto}
+.flow-col.hl{border-color:rgba(228,242,34,.35)}
+.flow-col .ico{font-size:26px;line-height:1}
+
+/* ═══════ T04 Grid Lines（技术） ═══════ */
+.s-lines{display:flex!important;flex-direction:column;justify-content:center;gap:32px}
+.lines-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:32px}
+.lines-head h1{font-size:40px;margin-top:12px}
+.lines-head .lead{font-size:14px}
+.lines-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;overflow:hidden;flex-shrink:0;
+  background:var(--line);border:0.5px solid var(--line);border-radius:var(--radius-card)}
+.line-cell{background:var(--carbon);padding:24px 20px 20px;display:flex;flex-direction:column;gap:8px;position:relative}
+.line-cell .num{position:absolute;top:18px;right:18px;font-family:var(--font-mono);font-size:15px;color:var(--ash)}
+.line-cell .name{font-size:18px;font-weight:600;color:var(--paper)}
+.line-cell .en{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--acid-lime)}
+.line-cell .desc{font-size:12px;margin-top:12px;line-height:1.55;color:var(--fog)}
+
+/* ═══════ T17 Chart（证据 · 指标） ═══════ */
+.s-chart{grid-template-rows:auto 1fr;gap:18px;padding-top:80px;padding-bottom:84px}
+.chart-head{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:32px}
+.chart-head h1{font-size:36px;margin-top:12px}
+.chart-head .lead{font-size:14px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:0.5px solid var(--line);border-radius:var(--radius-card);overflow:hidden}
+.chart-panel{background:var(--carbon);padding:22px 24px;display:flex;flex-direction:column;gap:14px}
+.chart-cap{display:flex;align-items:baseline;gap:14px}
+.chart-cap .ct{font-family:var(--font-mono);font-size:11px;color:var(--acid-lime)}
+.chart-cap .cs{font-size:15px;font-weight:500;color:var(--paper)}
+.kpi-row{display:flex;gap:28px;margin-top:6px}
+.kpi{display:flex;flex-direction:column;gap:4px}
+.kpi .v{font-size:38px;font-weight:200;letter-spacing:-.02em;color:var(--paper)}
+.kpi .v b{color:var(--acid-lime);font-weight:590}
+.kpi .l{font-size:11px;color:var(--fog);max-width:16ch;line-height:1.4}
+
+/* ═══════ T18 Dense Table（官方要求映射） ═══════ */
+.s-dense-table{grid-template-rows:auto auto;align-content:center;gap:20px}
+.dense-head{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:32px}
+.dense-head h1{font-size:42px;line-height:1.1;margin-top:12px}
+.dense-head .lead{max-width:48ch;font-size:15px;align-self:end}
+.dense-table{display:flex;flex-direction:column;gap:0}
+.dt-row{display:grid;grid-template-columns:200px 1fr 1fr;padding:13px 18px;align-items:center;
+  font-size:13px;border-bottom:1px solid var(--line)}
+.dt-row dt{text-align:left}
+.dt-row:nth-child(even){background:rgba(255,255,255,.015)}
+.dt-header{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--fog);background:var(--obsidian);border-radius:8px 8px 0 0}
+.dt-header span{padding:0 4px}
+.dt-row .dim{font-weight:600;color:var(--paper)}
+.dt-row .val{color:var(--fog)}
+.dt-row .val b{color:var(--acid-lime);font-weight:600}
+.dt-row .val.ok{color:var(--pulse-green)}
+.dt-row .val.ok::before{content:"✓  ";color:var(--pulse-green)}
+
+/* ═══════ T24 Free Dual（录屏 3 段） ═══════ */
+.s-free-dual{grid-template-rows:auto auto;gap:24px;height:100%;align-content:center}
+.free-cols-2{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:stretch;overflow:hidden}
+.rec-col{display:flex;flex-direction:column;gap:14px;min-height:0}
+.rec-card{background:var(--carbon);border:0.5px solid var(--line);border-radius:var(--radius-card);
+  padding:20px 22px;flex:1;display:flex;flex-direction:column;gap:8px}
+.rec-card .rt{display:flex;align-items:center;gap:10px}
+.rec-card .rt .n{font-family:var(--font-mono);font-size:13px;color:var(--acid-lime)}
+.rec-card .rt .t{font-size:18px;font-weight:600;color:var(--paper)}
+.rec-card .rd{font-size:13px;line-height:1.55;color:var(--fog)}
+.rec-card .dur{margin-top:auto;font-family:var(--font-mono);font-size:11px;color:var(--ash)}
+.rec-card .dur b{color:var(--paper)}
+
+/* ═══════ T08 Closing ═══════ */
+.s-close{grid-template-columns:1fr 1fr;padding:0;background:var(--void)}
+.close-left{background:var(--obsidian);padding:28px 46px 28px 72px;display:flex;flex-direction:column;justify-content:space-between}
+.close-right{background:var(--carbon);padding:28px 72px 28px 46px;display:flex;flex-direction:column}
+.chrome-min{display:flex;justify-content:space-between;font-size:12px;color:var(--ash);letter-spacing:.04em}
+.manifesto{margin:auto 0}
+.manifesto .meta{font-family:var(--font-mono);font-size:12px;color:var(--acid-lime);letter-spacing:.05em}
+.manifesto h2{font-size:64px;font-weight:200;line-height:1;letter-spacing:-.02em;color:var(--paper);margin-top:16px}
+.manifesto h2 em{font-style:normal;color:var(--acid-lime)}
+.manifesto .sub{font-size:15px;color:var(--fog);margin-top:14px;max-width:34ch}
+.sig{display:flex;justify-content:space-between;font-size:12px;color:var(--ash)}
+.sig b{color:var(--bone)}
+.takeaways{display:flex;flex-direction:column;gap:0;margin:auto 0}
+.take-item{display:grid;grid-template-columns:auto 1fr;gap:20px;padding:18px 0;border-bottom:1px solid var(--line)}
+.take-item:last-child{border-bottom:none}
+.take-item .num{font-size:40px;font-weight:200;color:var(--ash);line-height:1}
+.take-item h3{font-size:19px;font-weight:600;color:var(--paper);margin-bottom:6px}
+.take-item p{font-size:13px;line-height:1.55;color:var(--fog)}
+.foot-cta{font-family:var(--font-mono);font-size:13px;color:var(--acid-lime);padding-top:18px}
+.foot-cta a{color:var(--acid-lime);text-decoration:none;border-bottom:1px solid rgba(228,242,34,.3)}
+
+/* link style helper */
+a{color:var(--signal-teal)}
+</style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- 顶部 chrome -->
+  <div class="chrome-top">
+    <span class="brand"><b>Newsflow</b> · 三场景联动</span>
+    <span class="yr">GOSIM · 2026</span>
+  </div>
+  <!-- 底部 chrome -->
+  <div class="chrome-bottom">
+    <span class="series">NEWSFLOW DECK · Apache-2.0</span>
+    <span class="pageno"><b class="cur">01</b> / 08</span>
+  </div>
+
+  <!-- ① 封面 T01-B -->
+  <section class="slide s-cover-split active">
+    <div class="cover-split-text stagger">
+      <span class="kicker">GOSIM Agentic App · 财经×日程×新闻</span>
+      <h1 class="h-display">一条要闻，<br>牵出股票与日程。</h1>
+      <p class="lead">新闻驱动的三场景联动研究卡：Agent 读懂要闻 → 关联财经卡与日历卡 → 关键动作留人确认 → 失败可重试。</p>
+      <div class="cover-split-tags">
+        <span class="lime">Rinx 网页卡片</span>
+        <span>Cloudflare Pages 已上线</span>
+        <span>Apache-2.0 开源</span>
+      </div>
+    </div>
+    <div class="cover-split-img">
+      <div class="shot">
+        <svg class="card-schem" viewBox="0 0 400 460" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="新闻大头条与关联财经/日程卡结构示意图">
+          <rect width="400" height="460" fill="#0f1011"/>
+          <text x="24" y="34" font-family="JetBrains Mono,monospace" font-size="10" fill="#e4f222" letter-spacing="1.5">今日要闻 · NEWS BRIEF</text>
+          <line x1="24" y1="46" x2="376" y2="46" stroke="#23252a" stroke-width="0.5"/>
+          <rect x="24" y="56" width="352" height="118" rx="10" fill="#161718" stroke="rgba(255,255,255,.09)"/>
+          <rect x="24" y="56" width="352" height="3" rx="1.5" fill="#a78bfa" opacity="0.9"/>
+          <text x="44" y="90" font-family="Inter,sans-serif" font-size="17" font-weight="700" fill="#eceef4">动力电池产能利用率回升</text>
+          <text x="44" y="112" font-family="Inter,sans-serif" font-size="11" fill="#8a8f98">行业观察 · 2026-09-20 08:30</text>
+          <rect x="44" y="130" width="58" height="20" rx="10" fill="rgba(167,139,250,.16)"/>
+          <text x="54" y="144" font-family="Inter" font-size="10" fill="#a78bfa">动力电池</text>
+          <rect x="110" y="130" width="46" height="20" rx="10" fill="rgba(52,211,153,.14)"/>
+          <text x="120" y="144" font-family="JetBrains Mono,monospace" font-size="10" fill="#34d399">300750</text>
+          <path d="M200 200 L200 224" stroke="#383b3f" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="210" y="220" font-family="JetBrains Mono" font-size="10" fill="#62666d">牵出</text>
+          <rect x="24" y="234" width="170" height="150" rx="10" fill="#161718" stroke="rgba(52,211,153,.35)"/>
+          <rect x="24" y="234" width="170" height="2" fill="#34d399" opacity=".8"/>
+          <text x="40" y="262" font-family="Inter" font-size="14" font-weight="600" fill="#34d399">300750 · 财经</text>
+          <text x="40" y="284" font-family="Inter" font-size="11" fill="#d0d6e0">182.50  +3.6%</text>
+          <text x="40" y="306" font-family="Inter" font-size="10" fill="#8a8f98">相关日程</text>
+          <rect x="40" y="316" width="138" height="24" rx="6" fill="rgba(245,165,36,.1)" stroke="rgba(245,165,36,.3)"/>
+          <text x="50" y="332" font-family="Inter" font-size="10" fill="#f5a524">⚠ 三季报发布 · 待确认</text>
+          <rect x="40" y="348" width="138" height="24" rx="6" fill="rgba(52,211,153,.08)" stroke="rgba(52,211,153,.3)"/>
+          <text x="50" y="364" font-family="Inter" font-size="10" fill="#34d399">✓ 已落实</text>
+          <rect x="206" y="234" width="170" height="150" rx="10" fill="#161718" stroke="rgba(245,165,36,.35)"/>
+          <rect x="206" y="234" width="170" height="2" fill="#f5a524" opacity=".8"/>
+          <text x="222" y="262" font-family="Inter" font-size="14" font-weight="600" fill="#f5a524">宁德三季报 · 日程</text>
+          <text x="222" y="284" font-family="JetBrains Mono" font-size="11" fill="#d0d6e0">2026-10-20</text>
+          <rect x="222" y="300" width="64" height="24" rx="6" fill="rgba(52,211,153,.12)" stroke="rgba(52,211,153,.4)"/>
+          <text x="234" y="316" font-family="Inter" font-size="10" fill="#34d399">确认排入</text>
+          <rect x="294" y="300" width="64" height="24" rx="6" fill="rgba(235,87,87,.1)" stroke="rgba(235,87,87,.35)"/>
+          <text x="304" y="316" font-family="Inter" font-size="10" fill="#eb5757">拒绝/过期</text>
+          <text x="222" y="352" font-family="JetBrains Mono" font-size="10" fill="#62666d">失败 → Agent 将重试</text>
+          <text x="24" y="420" font-family="JetBrains Mono" font-size="10" fill="#383b3f" letter-spacing="1">intentflow-card.pages.dev · Apache-2.0</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 痛点 T06 -->
+  <section class="slide s-refine">
+    <div class="left stagger">
+      <span class="kicker">01 / 问题</span>
+      <h1 class="h-1">财经信息<br>散落在三个 App 里。</h1>
+      <p class="lead">公告在交易所、行情在券商 App、日程在日历——用户要自己拼。Agent 大多只回"数字"，不闭环成可确认的行动。</p>
+    </div>
+    <div class="refine-list stagger">
+      <div class="refine-item"><span class="idx">P-01</span><div><div class="h">信息孤岛</div><div class="d">同一条"动力电池产能回升"散在新闻、行情、财报三处，用户手动关联，容易漏。</div></div></div>
+      <div class="refine-item"><span class="idx">P-02</span><div><div class="h">Agent 只出数字，不出行动</div><div class="d">现有工具读完公告就停，不把它变成"该排的日程 / 该确认的事"，缺人在回路。</div></div></div>
+      <div class="refine-item"><span class="idx">P-03</span><div><div class="h">事实与判断混在一起</div><div class="d">行情数字、来源、主观分析不分层，用户分不清哪些可信、哪些是猜测。</div></div></div>
+      <div class="refine-item"><span class="idx">P-04</span><div><div class="h">失败没有兜底</div><div class="d">日程过期、操作被拒时，Agent 直接卡死，不提示重试。</div></div></div>
+    </div>
+  </section>
+
+  <!-- ③ 方案 T25 意图链 -->
+  <section class="slide s-free-triple">
+    <div class="free-head stagger">
+      <div>
+        <span class="kicker">02 / 方案</span>
+        <h1 class="h-1">新闻驱动，一条意图链</h1>
+      </div>
+      <p class="lead">以新闻为主场景（12 官方场景之一），财经 / 日程作为它的关联证据与行动。官方允许多场景联动统一参评。</p>
+    </div>
+    <div class="free-cols-3 stagger">
+      <div class="flow-col hl">
+        <span class="step">STEP 01 · INTENT</span>
+        <div class="ico">📰</div>
+        <div class="ct">读懂要闻</div>
+        <div class="cd">Agent 读新闻简报，保留来源与时间，抽主题 tag 与关联股票号，标记未读。</div>
+      </div>
+      <div class="flow-col">
+        <span class="step">STEP 02 · ACT</span>
+        <div class="ico">⚙️</div>
+        <div class="ct">牵出关联</div>
+        <div class="cd">点主题 / 股票号，牵出关联财经卡；Agent 从公告里提取关键日期，排进日历（待确认）。</div>
+      </div>
+      <div class="flow-col">
+        <span class="step">STEP 03 · VERIFY</span>
+        <div class="ico">✅</div>
+        <div class="ct">留人确认</div>
+        <div class="cd">用户点"确认排入"翻转为已落实；拒绝 / 过期 → Agent 将重试。关键动作永远留给用户。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ 技术 T04 -->
+  <section class="slide s-lines">
+    <div class="lines-head stagger">
+      <div>
+        <span class="kicker">03 / 技术</span>
+        <h1 class="h-1">确定性兜底，LLM 可换</h1>
+      </div>
+      <p class="lead">没配模型也永远能跑；配了 LLM 出真卡；人在回路 + 失败处理是评分硬项。</p>
+    </div>
+    <div class="lines-grid stagger">
+      <div class="line-cell"><span class="num">A</span><div class="en">Fallback</div><div class="name">确定性模板兜底</div><div class="desc">没 LLM / 没网 / 超时 → 走规则模板，demo 永不崩，保证可复现。</div></div>
+      <div class="line-cell"><span class="num">B</span><div class="en">LLM</div><div class="name">模型可插拔</div><div class="desc">复用天文赛 starter 的 model_factory，OpenAI 兼容，DeepSeek/GLM/Kimi 皆可换。</div></div>
+      <div class="line-cell"><span class="num">C</span><div class="en">Human-in-loop</div><div class="name">人在回路</div><div class="desc">订阅、排日程、标记已读，关键动作全留用户确认，不擅自执行。</div></div>
+      <div class="line-cell"><span class="num">D</span><div class="en">Fault</div><div class="name">失败可重试</div><div class="desc">拒绝 / 过期不卡死，显示"Agent 将重试"+ 重试入口，回到待确认。</div></div>
+    </div>
+  </section>
+
+  <!-- ⑤ 证据 T17 -->
+  <section class="slide s-chart">
+    <div class="chart-head stagger">
+      <div>
+        <span class="kicker">04 / 证据</span>
+        <h1 class="h-1">已上线，可运行，可复现</h1>
+      </div>
+      <p class="lead">不是 PPT 项目——公开 URL、公开仓库、Apache-2.0，评委可一键复现。</p>
+    </div>
+    <div class="chart-grid stagger">
+      <div class="chart-panel">
+        <div class="chart-cap"><span class="ct">DEPLOY</span><span class="cs">部署 & 开源</span></div>
+        <div class="kpi-row">
+          <div class="kpi"><span class="v">1</span><span class="l">公开 URL<br>Cloudflare Pages</span></div>
+          <div class="kpi"><span class="v">1</span><span class="l">公开仓库<br>Apache-2.0</span></div>
+          <div class="kpi"><span class="v"><b>2</b></span><span class="l">练习场景<br>全标注非真实</span></div>
+        </div>
+        <svg viewBox="0 0 520 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="100" x2="520" y2="100" stroke="#23252a" stroke-width="0.5"/>
+          <polyline points="0,80 90,72 180,76 270,52 360,40 450,30 520,26" fill="none" stroke="#e4f222" stroke-width="2"/>
+          <polyline points="0,88 90,84 180,86 270,80 360,76 450,72 520,70" fill="none" stroke="#62666d" stroke-width="1.5"/>
+          <circle cx="520" cy="26" r="3" fill="#e4f222"/>
+          <text x="360" y="18" font-family="JetBrains Mono" font-size="10" fill="#e4f222">intentflow-card.pages.dev</text>
+          <text x="360" y="60" font-family="JetBrains Mono" font-size="10" fill="#62666d">github.com/Nothern131/newsflow-card</text>
+        </svg>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-cap"><span class="ct">RUNTIME</span><span class="cs">运行证据</span></div>
+        <div class="kpi-row">
+          <div class="kpi"><span class="v">7</span><span class="l">练习数据条<br>3 财经+2 日程+2 新闻</span></div>
+          <div class="kpi"><span class="v"><b>0</b></span><span class="l">依赖<br>纯 HTML/JS 前端</span></div>
+          <div class="kpi"><span class="v">&lt;1s</span><span class="l">首屏可交互<br>静态托管</span></div>
+        </div>
+        <svg viewBox="0 0 520 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="84" width="36" height="16" rx="3" fill="#383b3f"/>
+          <rect x="20" y="60" width="36" height="22" rx="3" fill="#383b3f"/>
+          <rect x="20" y="30" width="36" height="30" rx="3" fill="#e4f222"/>
+          <text x="20" y="116" font-family="JetBrains Mono" font-size="10" fill="#8a8f98">template 兜底</text>
+          <rect x="120" y="48" width="36" height="52" rx="3" fill="#383b3f"/>
+          <rect x="120" y="20" width="36" height="30" rx="3" fill="#e4f222"/>
+          <text x="120" y="116" font-family="JetBrains Mono" font-size="10" fill="#8a8f98">+LLM 真卡</text>
+          <rect x="280" y="40" width="220" height="60" rx="8" fill="#161718" stroke="rgba(255,255,255,.09)"/>
+          <text x="296" y="66" font-family="JetBrains Mono" font-size="11" fill="#e4f222">_generated_by:</text>
+          <text x="296" y="84" font-family="JetBrains Mono" font-size="11" fill="#d0d6e0">template → llm</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ 官方要求映射 T18 -->
+  <section class="slide s-dense-table">
+    <div class="dense-head stagger">
+      <div>
+        <span class="kicker">05 / 对齐</span>
+        <h1 class="h-1">官方 4 项要求，逐条满足</h1>
+      </div>
+      <p class="lead">每个场景"都要完成一项任务"——读懂→执行→授权→核验→失败处理，全部落在代码里。</p>
+    </div>
+    <div class="dense-table stagger">
+      <div class="dt-row dt-header"><span>官方要求</span><span>本项目实现</span><span>状态</span></div>
+      <div class="dt-row"><span class="dim">读懂状态 · 读意图</span><span class="val">新闻卡读简报，抽主题 / 关联股票 / 时间 / 来源</span><span class="val ok">已实现</span></div>
+      <div class="dt-row"><span class="dim">执行操作 · 多步</span><span class="val">牵出财经卡 → 提取关键日期 → 排入日历（多步）</span><span class="val ok">已实现</span></div>
+      <div class="dt-row"><span class="dim">用户授权确认</span><span class="val">订阅 / 确认排入 / 标记已读，关键动作留人</span><span class="val ok">已实现</span></div>
+      <div class="dt-row"><span class="dim">结果核验</span><span class="val">待确认 ⚠ → 已落实 ✓ 状态翻转，可见反馈</span><span class="val ok">已实现</span></div>
+      <div class="dt-row"><span class="dim">失败 / 拒绝 / 过期</span><span class="val">"Agent 将重试"+ 重试入口，回待确认</span><span class="val ok">已实现</span></div>
+      <div class="dt-row"><span class="dim">区分练习 vs 真实</span><span class="val">全条目标注"练习数据 / 不构成投资建议"</span><span class="val ok">已实现</span></div>
+      <div class="dt-row"><span class="dim">可复现 + Apache-2.0</span><span class="val">公开仓库 + 公开 URL + 固定版本启动说明</span><span class="val ok">已实现</span></div>
+    </div>
+  </section>
+
+  <!-- ⑦ 录屏 3 段 T24 -->
+  <section class="slide s-free-dual">
+    <div class="free-head stagger">
+      <div>
+        <span class="kicker">06 / 演示</span>
+        <h1 class="h-1">3 段录屏，照脚本走</h1>
+      </div>
+      <p class="lead">提交材料要"任务演示与复现证据"——这 3 段就是意图→执行→核验的完整闭环。</p>
+    </div>
+    <div class="free-cols-2 stagger">
+      <div class="rec-col">
+        <div class="rec-card"><div class="rt"><span class="n">REC-1</span><span class="t">意图 · 读懂</span></div><div class="rd">打开要闻 → 点主题 tag / 关联股票号 → 牵出对应财经卡并高亮。</div><div class="dur">时长 <b>~30s</b></div></div>
+        <div class="rec-card"><div class="rt"><span class="n">REC-2</span><span class="t">执行 · 确认</span></div><div class="rd">财经卡点日程 → 日历卡同步翻转已落实；点订阅 → 触发待确认提醒。</div><div class="dur">时长 <b>~45s</b></div></div>
+      </div>
+      <div class="rec-col">
+        <div class="rec-card"><div class="rt"><span class="n">REC-3</span><span class="t">核验 · 失败</span></div><div class="rd">日历卡"拒绝/过期"→ Agent 将重试 → 重试回待确认；新闻"标记已读"。</div><div class="dur">时长 <b>~30s</b></div></div>
+        <div class="rec-card"><div class="rt"><span class="n">REC-4</span><span class="t">Rinx 分享</span></div><div class="rd">在 Rinx 会话用"网页卡片"分享 URL，录一次接收者打开的过程。</div><div class="dur">时长 <b>~30s</b></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑧ 收尾 T08 -->
+  <section class="slide s-close">
+    <div class="close-left">
+      <div class="chrome-min"><span>Newsflow · Closing</span><span>08</span></div>
+      <div class="manifesto">
+        <div class="meta">TAKEAWAY</div>
+        <h2>意图所至，<em>应用</em>而生。</h2>
+        <div class="sub">关键决定留给人，Agent 把一条要闻变成可确认、可核验、失败可重试的行动。</div>
+      </div>
+      <div class="sig"><span><b>Newsflow</b> · 梁梓渤</span><span>2026</span></div>
+    </div>
+    <div class="close-right">
+      <div class="chrome-min"><span>可复现三链接</span><span>OPEN</span></div>
+      <div class="takeaways">
+        <div class="take-item"><div class="num">01</div><div><h3>线上体验</h3><p>intentflow-card.pages.dev —— 直接打开玩，看联动。</p></div></div>
+        <div class="take-item"><div class="num">02</div><div><h3>开源代码</h3><p>github.com/Nothern131/newsflow-card · Apache-2.0 · 最后 commit 可运行。</p></div></div>
+        <div class="take-item"><div class="num">03</div><div><h3>下一步</h3><p>配 LLM 出真卡 + 接真实行情源，把"练习数据"升级成"真实服务"。</p></div></div>
+      </div>
+      <div class="foot-cta">→ <a href="https://intentflow-card.pages.dev">打开作品</a> · <a href="https://github.com/Nothern131/newsflow-card">看源码</a></div>
+    </div>
+  </section>
+
+  <!-- nav dots -->
+  <div class="nav-dots" id="dots"></div>
+
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var cur = 0;
+  var curEl = document.querySelector('.chrome-bottom .cur');
+  var dotsWrap = document.getElementById('dots');
+
+  // dots
+  for (var i=0;i<total;i++){
+    var b=document.createElement('button');
+    b.addEventListener('click',function(){go(i)});
+    dotsWrap.appendChild(b);
+  }
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function fit(){
+    var s = Math.min(window.innerWidth/1280, window.innerHeight/720);
+    // 只写 scale，中心位移保留
+    deck.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  function go(n){
+    cur = (n + total) % total;
+    slides.forEach(function(s,i){ s.classList.toggle('active', i===cur); });
+    dots.forEach(function(d,i){ d.classList.toggle('on', i===cur); });
+    if (curEl) curEl.textContent = String(cur+1).padStart(2,'0');
+  }
+
+  document.addEventListener('keydown',function(e){
+    if (e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '||e.key==='ArrowDown'){ e.preventDefault(); go(cur+1); }
+    else if (e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='ArrowUp'){ e.preventDefault(); go(cur-1); }
+    else if (e.key==='Home'){ go(0); }
+    else if (e.key==='End'){ go(total-1); }
+  });
+
+  // wheel
+  var wheelLock = 0;
+  document.addEventListener('wheel',function(e){
+    var now = Date.now();
+    if (now - wheelLock < 500) return;
+    if (e.deltaY > 0){ go(cur+1); wheelLock = now; }
+    else if (e.deltaY < 0){ go(cur-1); wheelLock = now; }
+  }, {passive:true});
+
+  // touch
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; },{passive:true});
+  document.addEventListener('touchend',function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50){ dx < 0 ? go(cur+1) : go(cur-1); }
+    else if (Math.abs(dy) > 50){ dy < 0 ? go(cur+1) : go(cur-1); }
+  }, {passive:true});
+
+  go(0);
+})();
+</script>
+</body>
+</html>

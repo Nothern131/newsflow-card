@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "subtitle": "新闻驱动三场景联动：一条意图链串起财经/日历/日程确认",
+  "description": "NewsFlow 卡片是 GOSIM Agentic App 黑客松的多场景联动作品（财经 × 日历 × 新闻）。新闻大头条当主角（意图入口），财经卡与日历卡作为关联证据区：点主题 tag 高亮关联财经卡，点股票号定位行情，日程确认/拒绝/过期按 title 主键在财经卡与日历卡间同步翻转。所有数据为练习数据（data/sample.json），来源字段已标注。本页为独立静态页面，不依赖宿主账号权限，也不读取聊天记录。",
+  "category": "finance",
+  "keywords": ["news", "markets", "calendar", "agent", "三场景联动"],
+  "screenshots": ["screenshots/01-today-brief.png"],
+  "icon": "assets/icon.svg",
+  "platforms": ["web"],
+  "publisher": {
+    "name": "Liang Zibo (Nothern131)",
+    "support": "https://github.com/Nothern131/newsflow-card/issues",
+    "privacy_policy_url": "https://github.com/Nothern131/newsflow-card/blob/main/PRIVACY.md"
+  },
+  "release_notes": "1.0.0 · 首次提交：网页卡片形态（URL 卡片分享），财经/日历/新闻三场景联动",
+  "age_rating": "all",
+  "license": "Apache-2.0"
+}

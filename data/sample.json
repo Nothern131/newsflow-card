@@ -92,7 +92,7 @@
     "headline": "动力电池行业产能利用率回升，碳酸锂价格企稳",
     "published_at": "2026-09-20T08:30:00+08:00",
     "source": "行业观察（练习数据）",
-    "link": "https://example.com/news/battery-capacity-2026",
+    "link": "news/battery-capacity-2026",
     "topics": ["动力电池", "碳酸锂", "新能源汽车"],
     "related_ticker": "300750",
     "status": "unread"
@@ -102,7 +102,7 @@
     "headline": "海上风电招标量超预期，产业链景气度持续",
     "published_at": "2026-09-18T10:00:00+08:00",
     "source": "新能源周报（练习数据）",
-    "link": "https://example.com/news/offshore-wind-2026",
+    "link": "news/offshore-wind-2026",
     "topics": ["风电", "新能源"],
     "related_ticker": "601016",
     "status": "unread"

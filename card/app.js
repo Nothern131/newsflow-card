@@ -66,7 +66,7 @@ function renderNewsCard(raw) {
   meta.append(t, src);
   card.append(meta);
 
-  // 原文链接
+  // 原文链接（练习数据 link 为相对占位符，拦截 click，不真跳）
   if (raw.link) {
     const a = document.createElement("a");
     a.className = "news-link";
@@ -74,6 +74,9 @@ function renderNewsCard(raw) {
     a.target = "_blank";
     a.rel = "noopener";
     a.textContent = "原文链接 →";
+    a.addEventListener("click", (e) => {
+      if (!/^https?:/i.test(raw.link)) { e.preventDefault(); }
+    });
     card.append(a);
   }
 

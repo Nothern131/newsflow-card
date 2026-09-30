@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "newsflow-card",
+  "version": "1.0.0",
+  "name": "NewsFlow · 三场景联动卡片",
+  "integrity": {
+    "bundle_blake3": ""
+  },
+  "capabilities": [],
+  "agent": {
+    "profile": "read-only",
+    "tools": ["card.render"],
+    "max_iterations": 4,
+    "token_budget": 20000
+  }
+}
